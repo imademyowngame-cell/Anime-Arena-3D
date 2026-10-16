@@ -1161,11 +1161,11 @@ const HSTYLE={0:'knight',2:'knight',7:'knight',10:'knight',11:'knight',1:'rogue'
   HHEAVY={2:1,10:1},HNOSHIELD={2:1,10:1,1:1,9:1};
 function makeHero(c,r,o){o=o||{};const id=c.id,style=o.style||HSTYLE[id]||'knight',arch=o.arch||(style==='sorcerer'?'warrior':'knight'),u=r/.6,fem=o.female??!!FEM[id];
   const h=new StylizedHeroMesh({id,arch,female:fem,u,skin:tone(c.skin,.85,.7),suit:tone(c.body,.3,.4),mail:style==='sorcerer'?null:0x8a8e94,
-    cloth:tone(c.body,.5,.75),cloth2:tone(c.body,.26,.6),metal:style==='rogue'?0x42444a:HHEAVY[id]?0x505258:0x6c7178,trim:0x6a5434,glow:c.eye||0xff6a2a});
+    cloth:tone(c.body,.46,1),cloth2:tone(c.body,.24,.8),metal:style==='rogue'?0x42444a:HHEAVY[id]?0x505258:0x6c7178,trim:0x6a5434,glow:c.eye||0xff6a2a});
   (o.kit||KITS[style])(h,{heavy:!!HHEAVY[id],noShield:!!HNOSHIELD[id]});const g=h.g;g._ck=id;g._u=u;g._wk='d';if(o.weapon)o.weapon(g,id,u);return g}
 /* ===================== 4. ISOMETRISCHE KAMERA (Low-FOV, kritisch gedämpft, Trauma-Shake) ===================== */
 class IsoCameraRig{
-  constructor(cam,o){o=o||{};this.cam=cam;this.pitch=(o.pitch??54)*Math.PI/180;this.yaw=(o.yaw??0)*Math.PI/180;this.fov=o.fov??27;this.viewH=o.viewH??10;
+  constructor(cam,o){o=o||{};this.cam=cam;this.pitch=(o.pitch??54)*Math.PI/180;this.yaw=(o.yaw??0)*Math.PI/180;this.fov=o.fov??27;this.viewH=o.viewH??11.5;
     this.smooth=o.smooth??.16;this.lead=o.lead??.28;this.minW=o.minW??11;this._px=null;this._pz=0;this._vx=0;this._vz=0;this.look=new T.Vector3();this.v=new T.Vector3();this.tr=0;this.t=0;this.kx=this.kz=this.kvx=this.kvz=0;this.zoom=1;this.inited=0}
   /* Hochformat: sichtbare Breite bleibt ≥ minW Welteinheiten */
   dist(){const vh=Math.max(this.viewH,this.minW/Math.max(.2,this.cam.aspect||1));return vh*this.zoom/(2*Math.tan(this.fov*Math.PI/360))}
@@ -2714,6 +2714,36 @@ function makeFoe(c,r){
     for(const[s,A,Eb]of[[-1,aL,eL],[1,aR,eR]]){const x=s*.3;add(A,S,M(0xfff2dc),.055,.1,.055,x,.87,0);add(Eb,S,M(0xfff2dc),.05,.09,.05,x,.7,0);add(Eb,S,M(0xfff2dc),.07,.065,.07,x,.6,.01);
       for(const dx of[-.03,.03])add(Eb,S,M(0xf0e0c8),.025,.04,.025,x+dx,.55,.03)}
     if(rg)add(eR,S,glowE,.07,.07,.07,.3,.57,.07)}
+  else if(typeof DFON!=='undefined'&&DFON&&kind==='goblin'){/* Dark Fantasy: Skelett-Ghul wie im Referenzbild – hager, gebückt, Rippen, Hörner, grün glühende Augen, Stachelkeule */
+    const hy=1.52,lx=.11,bn=M(0xb4ae94),bnD=M(0x7a745e),gr=M(0x66755a),grD=M(0x414d38),rag=M(0x3e2c22),ragD=M(0x2a1d16),gl=bm(0x7aff9a),hole=bm(0x050806);
+    legs(lx,.58,.3);hip=rig('hp',g,0,.58,0);
+    for(const[s,L,Kn]of[[-1,lL,kL],[1,lR,kR]]){const x=s*lx;add(L,GU,gr,.042,.2,.042,x,.46,0);add(L,S,bn,.055,.05,.055,x,.31,.025);
+      add(Kn,GU,gr,.034,.2,.034,x,.18,-.01);add(Kn,S,grD,.055,.032,.12,x,.035,.05);for(const dx of[-.03,0,.03]){const t=add(Kn,CN,bn,(.018)*3.3,(.06)*1.1,(.018)*3.3,x+dx,.03,.15);t.rotation.x=1.5708}}
+    /* Becken + zerrissener Lendenschurz */
+    add(hip,S,bn,.14,.07,.1,0,.62,0);add(hip,GU,rag,.15,.05,.12,0,.68,0);
+    for(const[dx,z,rx]of[[-.06,.12,-.15],[.07,.12,-.1],[0,-.12,.15]]){add(hip,GB,dx?rag:ragD,.11,.26,.015,dx,.52,z).rotation.x=rx;add(hip,CN,ragD,(.05)*3.3,(.08)*1.1,(.015)*3.3,dx,.38,z+rx*.1).rotation.x=3.14}
+    /* Wirbelsäule, gebückter Brustkorb mit Rippen */
+    for(let k=0;k<4;k++)add(hip,S,bnD,.035,.03,.035,0,.72+k*.07,-.06-k*.005);
+    add(hip,S,grD,.15,.19,.12,0,1.0,.06);
+    for(let k=0;k<4;k++){const r=.155-k*.012,t=add(hip,G.tor,bn,r,r*.85,.25,0,1.08-k*.065,.07);t.rotation.x=1.5708}
+    add(hip,GB,bn,.03,.22,.02,0,1.02,.18);
+    for(const s of[-1,1]){add(hip,S,bn,.07,.06,.07,s*.2,1.2,.04);add(hip,GB,bn,.16,.025,.03,s*.1,1.2,.13).rotation.z=s*.15}
+    add(hip,GU,bnD,.03,.14,.03,0,hy-.24,.1).rotation.x=.5;
+    head=rig('hd',hip,0,hy-.22,.12);
+    /* Schädel: Kiefer, Zähne, tiefe Augenhöhlen, glühende Pupillen, gebogene Hörner */
+    add(head,S,bn,.14,.15,.165,0,hy,.13);add(head,S,bnD,.12,.06,.1,0,hy+.1,.08);
+    add(head,GB,bnD,.11,.045,.1,0,hy-.12,.2).rotation.x=.25;for(const dx of[-.04,-.013,.013,.04]){const t=add(head,CN,bn,(.012)*3.3,(.04)*1.1,(.012)*3.3,dx,hy-.085,.27);t.rotation.x=3.14}
+    for(const s of[-1,1]){add(head,S,hole,.042,.038,.02,s*.055,hy+.015,.275);add(head,S,gl,.022,.02,.012,s*.055,hy+.015,.29);
+      const h1=add(head,CN,bnD,(.05)*3.3,(.22)*1.1,(.05)*3.3,s*.1,hy+.14,.08);h1.rotation.set(-.5,0,-s*.55);const h2=add(head,CN,bnD,(.03)*3.3,(.14)*1.1,(.03)*3.3,s*.2,hy+.27,.0);h2.rotation.set(-1.1,0,-s*.25)}
+    /* lange, dürre Arme mit Krallen */
+    const sx=.22,sy=1.18,ey=.8;arms(sx,sy,ey,hip);
+    for(const[s,A,Eb]of[[-1,aL,eL],[1,aR,eR]]){const x=s*sx;add(A,GU,gr,.034,.36,.034,x,(sy+ey)/2,0);add(A,S,bn,.045,.045,.045,x,ey,0);
+      add(Eb,GU,gr,.03,.32,.03,x,ey-.17,.01);add(Eb,GU,ragD,.04,.06,.04,x,ey-.24,.01);add(Eb,S,grD,.045,.05,.04,x,ey-.36,.02);
+      for(const dx of[-.025,0,.025]){const f=add(Eb,CN,bn,(.014)*3.3,(.09)*1.1,(.014)*3.3,x+dx,ey-.43,.04);f.rotation.x=3.14}}
+    const hx=sx,hy2=ey-.36;
+    if(rg){add(eR,S,gl,.07,.07,.07,hx,hy2-.02,.08)}
+    else{add(eR,GU,M(0x4a3020),.032,.62,.032,hx,hy2,.24).rotation.x=1.5708;add(eR,G.tor,M(0x3a3e44),.04,.04,.06,hx,hy2,.4);
+      add(eR,S,M(0x5a3a22),.1,.1,.17,hx,hy2,.56);for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const sp=add(eR,CN,M(0x8a8e96),(.06)*3.3,(.12)*1.1,(.06)*3.3,hx+dx*.09,hy2+dy*.09,.6);sp.rotation.z=dx?-dx*1.5708:dy<0?3.14:0}}}
   else{const og=kind==='ogre',K=og?1.25:1;
     const hy=og?1.42:1.38,lx=og?.17:.12;legs(lx,.5,.27);hip=rig('hp',g,0,.5,0);
     for(const[s,L,Kn]of[[-1,lL,kL],[1,lR,kR]]){const x=s*lx;add(L,S,og?skin:body,.09*K,.15,.095*K,x,.39,0);add(L,S,skD,.07*K,.06,.07*K,x,.27,.02);
@@ -9417,4 +9447,112 @@ let acc=0;(function loop(n){if(FPS30&&n-FPSL<30){requestAnimationFrame(loop);ret
   try{let k=0;while(acc>=1/60&&k<(XB?3:6)){update(1/60);acc-=1/60;k++}if(k>=(XB?3:6))acc=0;perfWatch(rd/1000)}catch(e){if(++er<4)console.error(e);if(er>25){er=0;try{setSt('menu')}catch(x){}}}
   try{ropesTick(Math.min(.05,rd/1000)*tsc);aeTick(Math.min(.05,rd/1000)*tsc);if(!PS)HAKI.update(Math.min(.05,rd/1000)*tsc);GFX.fxLoad=HAKI.sparks.alive+HAKI.embers.alive+F.length*3}catch(e){if(++er<4)console.error(e)}try{if(!GC.on){const pl=P&&st==='play'&&!PS;GFX.speedLines(pl?(P.dsh?1:P.ul?.5:0):0);GFX.punch(pl?zoomK:0);if(DFON){const d1=Math.min(.1,rd/1000),pp=P&&st==='play';DF.update(d1,pp?P.x:C,pp?P.z:R,pp?DFI.rig:null)}GFX.render(Math.min(.1,rd/1000))}}catch(e){try{ren.setRenderTarget(null);ren.render(scene,cam)}catch(x){}}requestAnimationFrame(loop)})(lt);
 setSt('menu');
+</script>
+<script>
+/* ===== Einführung für neue Spieler: geführtes Training, Menü-Tour, einmalige Hinweise ===== */
+(()=>{
+const TOUCH=(()=>{try{return matchMedia('(pointer:coarse)').matches}catch(e){return false}})();
+const css=`#tutCard{position:fixed;left:50%;top:52px;transform:translateX(-50%);width:min(470px,90vw);z-index:60;background:linear-gradient(180deg,rgba(20,26,26,.96),rgba(10,13,13,.96));
+ border:1px solid #6a5a34;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,220,150,.08);color:#ece4cf;padding:12px 16px 12px;display:none;font-family:inherit}
+#tutCard.on{display:block;animation:tutIn .35s ease-out}#tutCard h3{margin:0 0 4px;font-size:17px;color:#ffd98a;letter-spacing:.3px}#tutCard p{margin:0;font-size:14px;line-height:1.4;color:#d8d2c0}
+#tutCard .tb{display:flex;align-items:center;justify-content:space-between;margin-top:9px;gap:10px}#tutCard .dots{display:flex;gap:5px}#tutCard .dots i{width:8px;height:8px;border-radius:50%;background:#3a3f3a}
+#tutCard .dots i.on{background:#ffd27a}#tutCard .dots i.ok{background:#7adf8a}#tutCard button{font:inherit;font-size:12px;border-radius:8px;padding:5px 11px;border:1px solid #5a5040;background:#1e2220;color:#cfc6ae;cursor:pointer}
+#tutCard button.go{background:linear-gradient(180deg,#e8b84a,#a8782a);color:#1a1208;border-color:#ffd98a;font-weight:700}#tutCard.hint .tb{display:none}
+#tutCard .bar{height:3px;background:#2a2f2a;border-radius:2px;margin-top:8px;overflow:hidden}#tutCard .bar i{display:block;height:100%;width:0;background:#7adf8a;transition:width .25s}
+@keyframes tutIn{from{opacity:0;transform:translate(-50%,-10px)}to{opacity:1;transform:translate(-50%,0)}}
+.tutHL{animation:tutPulse 1.1s ease-in-out infinite!important;z-index:59!important}
+@keyframes tutPulse{0%,100%{box-shadow:0 0 0 3px rgba(255,210,122,.95),0 0 18px 6px rgba(255,190,90,.55)}50%{box-shadow:0 0 0 7px rgba(255,210,122,.35),0 0 30px 12px rgba(255,190,90,.25)}}
+#tutAsk{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;background:rgba(4,6,6,.72)}#tutAsk.on{display:flex}
+#tutAsk .bx{width:min(420px,88vw);background:linear-gradient(180deg,#1a2020,#0c1010);border:1px solid #6a5a34;border-radius:16px;padding:20px 20px 16px;color:#ece4cf;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.7)}
+#tutAsk h2{margin:0 0 6px;color:#ffd98a;font-size:21px}#tutAsk p{margin:0 0 16px;color:#cfc8b4;font-size:14px;line-height:1.45}#tutAsk .bt{display:flex;flex-direction:column;gap:8px}
+#tutAsk button{font:inherit;font-size:15px;border-radius:10px;padding:10px;border:1px solid #5a5040;background:#1e2422;color:#e0d8c0;cursor:pointer}#tutAsk button.go{background:linear-gradient(180deg,#e8b84a,#a8782a);color:#1a1208;border-color:#ffd98a;font-weight:700}
+#tutSpot{position:fixed;z-index:68;border-radius:14px;box-shadow:0 0 0 9999px rgba(3,5,5,.68),0 0 0 3px #ffd27a,0 0 24px 6px rgba(255,200,110,.5);pointer-events:none;display:none;transition:all .25s ease}
+#tutTip{position:fixed;z-index:69;width:min(300px,70vw);background:#141a1a;border:1px solid #8a7444;border-radius:12px;padding:11px 13px;color:#e8e0ca;display:none;box-shadow:0 10px 30px rgba(0,0,0,.6)}
+#tutTip h4{margin:0 0 3px;color:#ffd98a;font-size:15px}#tutTip p{margin:0;font-size:13px;line-height:1.4;color:#d0c8b2}#tutTip small{display:block;margin-top:7px;color:#8a8470;font-size:11px}
+#tutTap{position:fixed;inset:0;z-index:67;display:none}#mhelp{font-weight:800}`;
+const st0=document.createElement('style');st0.textContent=css;document.head.appendChild(st0);
+const el=(h)=>{const d=document.createElement('div');d.innerHTML=h;const n=d.firstElementChild;document.body.appendChild(n);return n};
+const card=el('<div id="tutCard"><h3></h3><p></p><div class="bar"><i></i></div><div class="tb"><div class="dots"></div><div><button class="sk">Überspringen</button></div></div></div>');
+const ask=el('<div id="tutAsk"><div class="bx"><h2></h2><p></p><div class="bt"></div></div></div>');
+const spot=el('<div id="tutSpot"></div>'),tip=el('<div id="tutTip"><h4></h4><p></p><small></small></div>'),tap=el('<div id="tutTap"></div>');
+const sv=()=>{try{saveSV()}catch(e){}},snd=n=>{try{playSnd(n)}catch(e){}};
+/* Tastennamen aus der Tastenbelegung des Spielers */
+const KN={Space:'Leertaste',Mouse0:'Linksklick',Mouse2:'Rechtsklick',ShiftLeft:'Shift',ShiftRight:'Shift',ArrowUp:'↑',ArrowDown:'↓',ArrowLeft:'←',ArrowRight:'→'};
+const key=a=>{let c='';try{c=(KBM[a]||[])[0]||''}catch(e){}return KN[c]||c.replace(/^Key/,'').replace(/^Digit/,'')||'?'};
+
+/* ---------- 1) Geführtes Training ---------- */
+const T={on:0,i:-1,t:0,mv:0,hits:0,lx:0,lz:0,ps:0,pd:0,ok:0,end:0,hl:null};
+const STEPS=[
+ {t:'Willkommen, Held!',d:()=>'In einer Minute lernst du die Grundlagen. Die Zielpuppen um dich herum wehren sich nicht – probier alles in Ruhe aus.',auto:4.5},
+ {t:'1 · Laufen',d:()=>TOUCH?'Zieh den Joystick links unten in eine Richtung, um zu laufen.':'Laufe mit '+key('up')+' '+key('left')+' '+key('down')+' '+key('right')+'.',hl:'jb',goal:()=>Math.min(1,T.mv/12)},
+ {t:'2 · Angreifen',d:()=>TOUCH?'Tippe auf ANGRIFF. Dein Held zielt automatisch auf die nächste Puppe. Triff 4-mal.':'Greife mit '+key('attack')+' an. Dein Held zielt automatisch. Triff 4-mal.',hl:'at',goal:()=>Math.min(1,T.hits/4)},
+ {t:'3 · Fähigkeit',d:()=>'Jeder Held hat eine besondere Fähigkeit – bei dir: „'+(P&&P.ch.sp||'Fähigkeit')+'“. '+(TOUCH?'Tippe auf den Knopf über ANGRIFF.':'Drücke '+key('special')+'.')+' Danach lädt sie kurz nach.',hl:'sp',goal:()=>T.ok?1:0},
+ {t:'4 · Ausweichen',d:()=>'Mit Dash springst du blitzschnell aus der Gefahr. '+(TOUCH?'Tippe auf DASH.':'Drücke '+key('dash')+'.'),hl:'ds',goal:()=>T.ok?1:0},
+ {t:'5 · Ulti',d:()=>'Treffer laden deine Ulti auf. Jetzt ist sie voll – '+(TOUCH?'tippe auf ULT!':'drücke '+key('ult')+'!'),hl:'ul',goal:()=>T.ok?1:0},
+ {t:'Geschafft! 🎉',d:()=>'Du kennst jetzt die Grundlagen. Belohnung: 200 Gold. Gleich zeige ich dir noch kurz das Menü.',auto:4,end:1}];
+function dots(){const d=card.querySelector('.dots');d.innerHTML='';for(let k=1;k<STEPS.length-1;k++){const i=document.createElement('i');if(k<T.i)i.className='ok';else if(k===T.i)i.className='on';d.appendChild(i)}}
+function hl(id){if(T.hl){T.hl.classList.remove('tutHL');T.hl=null}if(id){const e=$(id);if(e){e.classList.add('tutHL');T.hl=e}}}
+function show(h,p,hint){card.classList.toggle('hint',!!hint);card.querySelector('h3').textContent=h;card.querySelector('p').textContent=p;card.classList.remove('on');void card.offsetWidth;card.classList.add('on')}
+function hide(){card.classList.remove('on');hl(null)}
+function go(i){T.i=i;T.t=0;T.ok=0;T.mv=0;T.hits=0;const S=STEPS[i];if(!S){stop(true);return}
+  if(P){T.lx=P.x;T.lz=P.z;T.ps=P.scd||0;T.pd=P.dcd||0}show(S.t,S.d());dots();hl(S.hl);card.querySelector('.bar').style.display=S.goal?'block':'none';card.querySelector('.bar i').style.width='0';
+  card.querySelector('.sk').textContent=S.end?'Weiter':'Überspringen';if(i>0)snd('gear2')}
+function startTut(){try{ask.classList.remove('on');$('mpop').classList.remove('on')}catch(e){}T.on=1;T.end=0;try{$('trn').onclick()}catch(e){T.on=0;return}setTimeout(()=>go(0),400)}
+function stop(done){if(!T.on)return;T.on=0;hide();if(done){try{SV.gold=(SV.gold||0)+200;$('mgold').textContent=fmtN(SV.gold)}catch(e){}}SV.tut=2;sv();
+  try{trClean();TR=0;setSt('menu')}catch(e){}if(done)setTimeout(()=>tour(),700)}
+card.querySelector('.sk').onclick=()=>{const S=STEPS[T.i];if(!T.on){hide();return}if(S&&S.end)stop(true);else stop(false)};
+/* Schritte prüfen (eigene Schleife, unabhängig vom Spieltakt) */
+const _trLog=trLog;trLog=function(d){if(T.on)T.hits++;return _trLog.apply(this,arguments)};
+let lt=performance.now();(function tick(n){const dt=Math.min(1,(n-lt)/1000);lt=n;
+  try{if(st!=='menu'&&!T.on){if(ask.classList.contains('on'))ask.classList.remove('on');if(TI>=0)tourEnd()}}catch(e){}
+  if(T.on){if(st!=='play'||!TR||!P){T.on=0;hide()}else{const S=STEPS[T.i];if(S){T.t+=dt;
+    T.mv+=Math.hypot(P.x-T.lx,P.z-T.lz);T.lx=P.x;T.lz=P.z;
+    if(T.i===3&&(P.scd||0)>T.ps+.1)T.ok=1;T.ps=Math.min(T.ps,P.scd||0);
+    if(T.i===4&&(P.dcd||0)>T.pd+.1)T.ok=1;T.pd=Math.min(T.pd,P.dcd||0);
+    if(T.i===5&&P.ul)T.ok=1;if(T.i===5){P.uc=100;P.ucd=0}
+    if(S.goal){const g=S.goal();card.querySelector('.bar i').style.width=(g*100)+'%';if(g>=1&&!S._d){S._d=1;setTimeout(()=>{S._d=0;if(T.on&&T.i===STEPS.indexOf(S))go(T.i+1)},700)}}
+    else if(S.auto&&T.t>=S.auto){if(S.end)stop(true);else go(T.i+1)}}}}
+  requestAnimationFrame(tick)})(lt);
+
+/* ---------- 2) Menü-Tour: Scheinwerfer + Erklärung je Knopf ---------- */
+const TOUR=[['play','Kampf starten','Hier geht es los: Besiege Welle für Welle die Gegner. Mit jeder Welle werden sie stärker – am Ende wartet ein Boss.'],
+ ['mmode','Spielmodus','Wechsle zwischen Normal, Open World und weiteren Modi. In der Open World erkundest du frei eine riesige Welt.'],
+ ['mch','Kämpfer','Wähle deinen Helden. Jeder kämpft anders und hat eine eigene Fähigkeit und Ulti.'],
+ ['upb','Aufleveln','Gib Gold aus, um Leben, Schaden und Fähigkeiten deines Helden zu verbessern.'],
+ ['eqm','Ausrüstung','Lege Beute aus Kämpfen und Truhen an. Mehrere Teile eines Sets geben starke Boni.'],
+ ['chm','Truhen','Öffne Truhen für neue Ausrüstung.'],['qm','Quests','Erledige Aufgaben und hol dir Extra-Belohnungen ab.'],
+ ['stm','Skilltree','Verteile Skillpunkte für dauerhafte Verbesserungen.'],['trn','Training','Hier kannst du jederzeit gefahrlos üben.'],
+ ['mhelp','Hilfe','Über das ? kannst du diese Einführung jederzeit wiederholen. Viel Erfolg, Held!']];
+let TI=-1;
+function tourShow(){const list=TOUR;while(++TI<list.length){const[id,h,p]=list[TI],e=$(id);if(!e||!e.offsetParent)continue;const r=e.getBoundingClientRect();if(r.width<4)continue;
+    spot.style.display='block';spot.style.left=(r.left-6)+'px';spot.style.top=(r.top-6)+'px';spot.style.width=(r.width+12)+'px';spot.style.height=(r.height+12)+'px';
+    tip.querySelector('h4').textContent=h;tip.querySelector('p').textContent=p;tip.querySelector('small').textContent=(TI+1)+' / '+list.length+' · Tippen zum Weitermachen';tip.style.display='block';
+    const W=innerWidth,H=innerHeight,tw=tip.offsetWidth,th=tip.offsetHeight;let x=r.right+14,y=r.top+r.height/2-th/2;if(x+tw>W-8)x=r.left-tw-14;if(x<8){x=Math.min(W-tw-8,Math.max(8,r.left+r.width/2-tw/2));y=r.top-th-14;if(y<8)y=r.bottom+14}
+    tip.style.left=Math.max(8,x)+'px';tip.style.top=Math.max(8,Math.min(H-th-8,y))+'px';snd('click');return}
+  tourEnd()}
+function tour(){if(st!=='menu')return;TI=-1;tap.style.display='block';tourShow()}
+function tourEnd(){spot.style.display='none';tip.style.display='none';tap.style.display='none';TI=-1}
+tap.onclick=()=>tourShow();
+
+/* ---------- 3) Willkommens-Fenster + Hilfe-Knopf ---------- */
+function askOpen(first){ask.querySelector('h2').textContent=first?'Willkommen in der Arena!':'Hilfe';
+  ask.querySelector('p').textContent=first?'Bist du neu hier? Eine kurze Einführung (ca. 1 Minute) zeigt dir Steuerung, Angriffe und das Menü – und bringt dir 200 Gold.':'Was möchtest du dir noch einmal ansehen?';
+  const bt=ask.querySelector('.bt');bt.innerHTML='';const b=(t,f,go)=>{const x=document.createElement('button');x.textContent=t;if(go)x.className='go';x.onclick=f;bt.appendChild(x)};
+  if(first){b('Einführung starten',()=>{try{initAudio()}catch(e){}startTut()},1);b('Ich kenne mich aus',()=>{ask.classList.remove('on');SV.tut=1;sv()})}
+  else{b('Steuerung üben (Einführung)',()=>{try{initAudio()}catch(e){}startTut()},1);b('Menü erklären',()=>{ask.classList.remove('on');setTimeout(tour,150)});b('Schließen',()=>ask.classList.remove('on'))}
+  ask.classList.add('on')}
+try{const mr=$('mright'),mb=document.createElement('button');mb.id='mhelp';mb.className='ic';mb.title='Hilfe & Einführung';mb.textContent='?';mr.insertBefore(mb,$('mset'));mb.onclick=()=>{snd('click');askOpen(false)}}catch(e){}
+/* neue Spieler (noch kein Fortschritt) bekommen das Willkommens-Fenster automatisch */
+const fresh=()=>{try{return !SV.tut&&!(SV.gold>0)&&!(SV.lv||[]).some(v=>v>0)&&!(SV.inv||[]).length}catch(e){return false}};
+setTimeout(()=>{if(fresh()&&st==='menu')askOpen(true)},900);
+
+/* ---------- 4) Einmalige Hinweise beim ersten Kampf / ersten Open-World-Besuch ---------- */
+function hint(k,h,p){SV.hints=SV.hints||{};if(SV.hints[k]||T.on)return;SV.hints[k]=1;sv();setTimeout(()=>{if(st!=='play'||T.on)return;show(h,p,true);clearTimeout(hint.t);hint.t=setTimeout(hide,9000)},1200)}
+card.addEventListener('click',()=>{if(card.classList.contains('hint'))hide()});
+const _start=start;start=function(){const r=_start.apply(this,arguments);try{if(st==='play'&&!TR&&!T.on){
+  if(MODE==='openworld')hint('ow','Open World','Erkunde frei! Je weiter du dich vom Start entfernst, desto gefährlicher wird es – und desto besser die Beute. Rastplätze mit Zelten sind sicher, heilen dich und füllen Tränke auf.');
+  else hint('arena','Dein erster Kampf','Besiege alle Gegner jeder Welle. Halte Abstand zu starken Gegnern, weiche mit Dash aus und heile dich mit dem Trank-Knopf, wenn es eng wird. Tippe hier, um den Hinweis zu schließen.')}}catch(e){}return r};
+window.TUT={start:startTut,tour,ask:askOpen};
+})();
+
 </script></body></html>
